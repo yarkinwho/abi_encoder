@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include "evm_types.hpp"
 
 /*
 Need -std=c++20 when compiling using g++. But the code can compile using cdt with default settings.
@@ -42,13 +43,11 @@ enc2.encode(output2);
 
 
 */
-namespace abi_encoder {
+namespace utils {
+// Local helpers
 
 using byte = uint8_t;
-using address = byte[20];
 using bytes = std::vector<byte>;
-
-// Local helpers
 
 void appendNumber(std::vector<uint8_t>& buffer, intx::uint256 input) {
     uint8_t val_[32] = {};
@@ -146,6 +145,13 @@ public:
         appendFixedBytes(m_data, input);
     }
 
+    // evm address
+    AbiEncoder(const evm_address& input) : m_type(kByteN) {
+        byte buf[32] = {};
+        memcpy(buf + 32 - kAddressLength, input.data, kAddressLength);
+        appendFixedBytes(m_data, buf);
+    }
+
     // bytes
     AbiEncoder(const bytes& input) : m_type(kBytes) {
         appendBytes(m_data, input);
@@ -168,7 +174,7 @@ public:
         input.encodeStruct(*this);
     }
 
-    // Fix size array or types is tpule
+    // Fix size array of types is tuple
     template<class T, unsigned N>
     AbiEncoder(const T (&input)[N]) : m_type(kTuple) {
         for (const auto& i : input) {
@@ -278,7 +284,7 @@ private:
 };
 
 
-} // abi_encoder
+} // utils
 
 
 // Macro for DEF_ENCODER(...)
@@ -301,7 +307,7 @@ private:
 
 
 #define DEF_ENCODER(...)                                                 \
-    void encodeStruct(abi_encoder::AbiEncoder& encoder) const {                       \
+    void encodeStruct(utils::AbiEncoder& encoder) const {                       \
         EXPAND(FOR_EACH_HELPER((encoder.append), __VA_ARGS__))           \
     }                                                   
 

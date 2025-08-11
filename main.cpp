@@ -5,7 +5,7 @@
 #include "abi_encoder.hpp"
 
 
-using namespace abi_encoder;
+using namespace utils;
 
 struct test {
     uint64_t a;
@@ -34,8 +34,8 @@ struct test2 {
 };
 
 struct test3 {
-    abi_encoder::bytes a;
-    abi_encoder::address b;
+    utils::bytes a;
+    utils::evm_address b;
     bool c;
 
     DEF_ENCODER(a, b, c);
@@ -75,7 +75,7 @@ int main() {
 
     test2 t2 = {{ {1,2}, {3}}, {"one","two","three"}};
 
-    test3 t3 = {{'1','2','3','4','5','6','7','8','9','0'}, {0xbb,0xbb}, true};
+    test3 t3 = {{'1','2','3','4','5','6','7','8','9','0'}, {{0xbb,0xbb}}, true};
 
     test4 t4 = {t1,t2,t3};
 
